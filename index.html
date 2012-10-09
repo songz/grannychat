@@ -1,0 +1,56 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <title>OpenTok Getting Started</title>
+  <script src="http://static.opentok.com/v0.91/js/TB.min.js"></script>
+ 
+  <script type="text/javascript">
+    var apiKey = '20752381';
+    var sessionId = '2_MX4yMDc1MjM4MX4xMjcuMC4wLjF-TW9uIE9jdCAwOCAxNToyMjoxMyBQRFQgMjAxMn4wLjg2NzY5ODU1fg';
+    var token = 'T1==cGFydG5lcl9pZD0yMDc1MjM4MSZzaWc9NWQ2MDY2YjA1N2QwYjMxMjcyMjZhY2Y4OWZiOTRkMDFkNGEzZjZjZDpzZXNzaW9uX2lkPTJfTVg0eU1EYzFNak00TVg0eE1qY3VNQzR3TGpGLVRXOXVJRTlqZENBd09DQXhOVG95TWpveE15QlFSRlFnTWpBeE1uNHdMamcyTnpZNU9EVTFmZyZjcmVhdGVfdGltZT0xMzQ5ODE1NDk2JmV4cGlyZV90aW1lPTEzNTI0MDc0OTYmcm9sZT1wdWJsaXNoZXImY29ubmVjdGlvbl9kYXRhPSZub25jZT00ODQwNDM=';           
+     
+    TB.setLogLevel(TB.DEBUG);     
+ 
+    var session = TB.initSession(sessionId);      
+    session.addEventListener('sessionConnected', sessionConnectedHandler);
+    session.addEventListener('streamCreated', streamCreatedHandler);      
+    session.connect(apiKey, token);
+ 
+    var publisher;
+ 
+    function sessionConnectedHandler(event) {
+      publisher = TB.initPublisher(apiKey, 'myPublisherDiv');
+      session.publish(publisher);
+       
+      // Subscribe to streams that were in the session when we connected
+      subscribeToStreams(event.streams);
+    }
+     
+    function streamCreatedHandler(event) {
+      // Subscribe to any new streams that are created
+      subscribeToStreams(event.streams);
+    }
+     
+    function subscribeToStreams(streams) {
+      for (var i = 0; i < streams.length; i++) {
+        // Make sure we don't subscribe to ourself
+        if (streams[i].connection.connectionId == session.connection.connectionId) {
+          return;
+        }
+ 
+        // Create the div to put the subscriber element in to
+        var div = document.createElement('div');
+        div.setAttribute('id', 'stream' + streams[i].streamId);
+        document.body.appendChild(div);
+                           
+        // Subscribe to the stream
+        var subscribeProps = {height:240, width:320};
+        session.subscribe(streams[i], div.id);
+      }
+    }
+  </script>
+</head>
+ 
+<body>
+  <div id="myPublisherDiv"></div>
+</body>
+</html>
